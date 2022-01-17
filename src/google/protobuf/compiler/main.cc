@@ -41,7 +41,6 @@
 #ifndef OPENSOURCE_PROTOBUF_CPP_BOOTSTRAP
 #include <google/protobuf/compiler/csharp/csharp_generator.h>
 #include <google/protobuf/compiler/javanano/javanano_generator.h>
-#include <google/protobuf/compiler/js/js_generator.h>
 #include <google/protobuf/compiler/objectivec/objectivec_generator.h>
 #include <google/protobuf/compiler/php/php_generator.h>
 #include <google/protobuf/compiler/ruby/ruby_generator.h>
@@ -96,10 +95,6 @@ int main(int argc, char* argv[]) {
   cli.RegisterGenerator("--objc_out", "--objc_opt", &objc_generator,
                         "Generate Objective C header and source.");
 
-  // JavaScript
-  google::protobuf::compiler::js::Generator js_generator;
-  cli.RegisterGenerator("--js_out", &js_generator,
-                        "Generate JavaScript source.");
 #endif  // !OPENSOURCE_PROTOBUF_CPP_BOOTSTRAP
 
   return cli.Run(argc, argv);
