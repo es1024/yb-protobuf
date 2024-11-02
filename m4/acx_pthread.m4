@@ -370,7 +370,30 @@ if test "x$acx_pthread_ok" = xyes; then
 	      PTHREAD_LIBS="$PTHREAD_LIBS -lpthread"
 	   else
 	      AC_MSG_RESULT([no])
-	      AC_MSG_WARN([Impossible to determine how to use pthreads with shared libraries and -nostdlib])
+
+	      # If we are compiling with Clang and TSAN is enabled, there is a dependency added on
+	      # __gcc_personality_v0 from libclang_rt.builtins for code that throws exceptions.
+	      #
+	      # This is normally linked against, but -nostdlib avoids linking against it, which
+	      # is problematic if we are building shared libraries.
+	      AC_MSG_CHECKING([whether -ltsan -lclang_rt.builtins fixes things])
+
+	      LIBS="$LIBS -ltsan -lclang_rt.builtins"
+	      AC_TRY_LINK([#include <pthread.h>],
+	          [pthread_t th; pthread_join(th, 0);
+	          pthread_attr_init(0); pthread_cleanup_push(0, 0);
+	          pthread_create(0,0,0,0); pthread_cleanup_pop(0); ],
+	          [done=yes],[done=no])
+
+	      if test "x$done" = xyes; then
+	          AC_MSG_RESULT([yes])
+	          # -ltsan gets picked up when building normally, but clang_rt.builtins needs to be
+	          # manually linked against.
+	          PTHREAD_LIBS="$PTHREAD_LIBS -lclang_rt.builtins"
+	      else
+	          AC_MSG_RESULT([no])
+	          AC_MSG_ERROR([Impossible to determine how to use pthreads with shared libraries and -nostdlib])
+	      fi
 	   fi
 	fi
 
