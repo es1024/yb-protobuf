@@ -204,14 +204,6 @@ void ArenaStringPtr::SetAllocated(std::string* value, Arena* arena) {
   if (value == nullptr) {
     InitDefault();
   } else {
-#ifndef NDEBUG
-    // On debug builds, copy the string so the address differs.  delete will
-    // fail if value was a stack-allocated temporary/etc., which would have
-    // failed when arena ran its cleanup list.
-    std::string* new_value = new std::string(std::move(*value));
-    delete value;
-    value = new_value;
-#endif  // !NDEBUG
     InitAllocated(value, arena);
   }
 }
